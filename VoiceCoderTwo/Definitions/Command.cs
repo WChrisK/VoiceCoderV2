@@ -8,7 +8,7 @@ namespace VoiceCoderTwo.Definitions
     public class Command
     {
         public readonly Mode Mode;
-        public readonly string? Name;
+        public readonly string Name = "";
         public readonly Action<string[]>? Function;
         public readonly List<object> ActionKeys = new List<object>();
         public readonly GrammarNode GrammarNode;
@@ -56,6 +56,8 @@ namespace VoiceCoderTwo.Definitions
             {
                 ActionKeys = CommandParser.Parse(actionStr) ?? throw new Exception($"Malformed action: {actionStr}");
             }
+
+            Name ??= grammarStr;
         }
 
         public VCGrammar Compile()

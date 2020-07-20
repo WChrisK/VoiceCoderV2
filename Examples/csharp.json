@@ -1,0 +1,38 @@
+{
+	"modes": {
+        "program": {
+            "commands": [
+                {
+                    "name": "Dot",
+                    "grammar": "dot",
+                    "action": "`.`"
+                }
+            ]
+        }
+    },
+    "commands": [
+        {
+            "name": "Voice code control",
+            "grammar": "voice code (start | stop)",
+            "function": "VoiceCodeMute"
+        },
+        {
+            "name": "Mode loading",
+            "grammar": "mode change $dictate",
+            "function": "ChangeMode"
+        },
+        {
+            "name": "Mode sibling switch",
+            "grammar": "mode switch $dictate",
+            "function": "SwitchSiblingMode"
+        },
+        {
+            "name": "Exit mode",
+            "grammar": "mode exit",
+            "function": "ExitMode"
+        },
+    ],
+    "defines": {
+        "number": "(zero | one | two | three | four | five | six | seven | eight | nine) $dictate"
+    }
+}
