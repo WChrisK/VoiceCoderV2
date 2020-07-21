@@ -1,9 +1,32 @@
 {
 	"modes": {
+        "mouse": {
+            "commands": [
+                {
+                    "name": "Move mouse",
+                    "grammar": "move ((up | down) [left | right] | left | right) $number+",
+                    "function": "MouseMove"
+                },
+                {
+                    "name": "Click mouse",
+                    "grammar": "click [right | double]",
+                    "function": "MouseClick"
+                },
+                {
+                    "name": "Mouse grid",
+                    "grammar": "grid (one | two | three | four)+",
+                    "function": "MouseGrid"
+                },
+                {
+                    "name": "Done using mouse",
+                    "grammar": "done",
+                    "function": "ExitMode"
+                }
+            ]
+        },
         "program": {
             "commands": [
                 {
-                    "name": "Dot",
                     "grammar": "dot",
                     "action": "`.`"
                 }
@@ -30,9 +53,9 @@
             "name": "Exit mode",
             "grammar": "mode exit",
             "function": "ExitMode"
-        },
+        }
     ],
     "defines": {
-        "number": "(zero | one | two | three | four | five | six | seven | eight | nine) $dictate"
+        "number": "(zero | oh | one | two | three | four | five | six | seven | eight | nine)"
     }
 }

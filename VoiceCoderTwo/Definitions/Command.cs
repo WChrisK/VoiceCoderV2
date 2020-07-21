@@ -50,11 +50,11 @@ namespace VoiceCoderTwo.Definitions
             if (actionStr == null)
             {
                 if (Function == null)
-                    throw new Exception($"Function cannot be found and no action field found for name '{Name}'");
+                    throw new ParserException($"Function cannot be found and no action field found for name '{Name}'");
             }
             else
             {
-                ActionKeys = CommandParser.Parse(actionStr) ?? throw new Exception($"Malformed action: {actionStr}");
+                ActionKeys = CommandParser.Parse(actionStr) ?? throw new ParserException($"Malformed action: {actionStr}");
             }
 
             Name ??= grammarStr;

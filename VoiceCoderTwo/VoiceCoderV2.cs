@@ -11,7 +11,7 @@ using VoiceCoderTwo.Definitions;
 
 namespace VoiceCoderTwo
 {
-    public static class EntryPoint
+    public static class VoiceCoderV2
     {
         public static bool HaltVoiceCoder;
         private static readonly SpeechRecognitionEngine sre = new SpeechRecognitionEngine();
@@ -85,12 +85,13 @@ namespace VoiceCoderTwo
 
         public static void EmitLastActionKeys()
         {
+            StringBuilder sendKeysString = new StringBuilder();
+
             foreach (object actionKey in lastActionCommand)
             {
                 switch (actionKey)
                 {
                 case string str:
-                    StringBuilder strBuilder = new StringBuilder();
                     foreach (char c in str)
                     {
                         switch (c)
@@ -105,18 +106,17 @@ namespace VoiceCoderTwo
                         case '^':
                         case '%':
                         case '~':
-                            strBuilder.Append($"{{{c}}}");
+                            sendKeysString.Append($"{{{c}}}");
                             break;
                         default:
-                            strBuilder.Append(c);
+                            sendKeysString.Append(c);
                             break;
                         }
                     }
-                    Native.EmitKeys(strBuilder.ToString());
                     break;
 
                 case InputKey inputKey:
-                    Native.EmitKeys(inputKey switch
+                    sendKeysString.Append(inputKey switch
                     {
                         InputKey.Tab => "{TAB}",
                         InputKey.Shift => "+",
@@ -150,10 +150,15 @@ namespace VoiceCoderTwo
                         InputKey.CapsLock => "{CAPSLOCK}",
                         _ => throw new Exception($"Unknown input key: {inputKey}")
                     });
+                    break;
 
+                case Coordinate point:
+                    DeployAndClearSendKeysBuffer();
+                    Native.MoveMouseAbsolute(point.X, point.Y);
                     break;
 
                 case int delayMs:
+                    DeployAndClearSendKeysBuffer();
                     if (delayMs > 0)
                         Thread.Sleep(delayMs);
                     break;
@@ -161,6 +166,17 @@ namespace VoiceCoderTwo
                 default:
                     throw new Exception($"Unsupported action key: {actionKey} {actionKey.GetType().FullName}");
                 }
+            }
+
+            DeployAndClearSendKeysBuffer();
+
+            void DeployAndClearSendKeysBuffer()
+            {
+                if (sendKeysString.Length == 0)
+                    return;
+
+                Native.EmitKeys(sendKeysString.ToString());
+                sendKeysString.Clear();
             }
         }
 
@@ -186,7 +202,7 @@ namespace VoiceCoderTwo
             Console.WriteLine("[Recognized text] " + e.Result.Text);
             VCGrammar grammar = (VCGrammar)e.Result.Grammar;
             Command command = grammar.Command;
-            Console.WriteLine(command.Name != null ? $">>> {command.Name}" : ">>> <unnamed>");
+            Console.WriteLine($">>> {command.Name}");
 
             if (command.ActionKeys.Count > 0)
                 SendActionKeys(command.ActionKeys);
@@ -208,7 +224,18 @@ namespace VoiceCoderTwo
             string text = File.ReadAllText(path);
             object data = JsonConvert.DeserializeObject(text) ?? throw new NullReferenceException($"Unable to read definitions at: {path}");
 
-            rootMode = new Mode("", (JObject)data);
+            try
+            {
+                rootMode = new Mode("", null, (JObject)data);
+            }
+            catch (ParserException e)
+            {
+                Console.WriteLine("Your definitions are malformed, program execution cannot continue.");
+                Console.WriteLine("Resolve the syntax errors or missing functions and re-run.");
+                Console.WriteLine($"Reason: {e.Message}");
+                Environment.Exit(1);
+            }
+
             RecursivelyAddModes(rootMode, "");
 
             // Load all the stuff so they're ready to be toggled, but only make
@@ -250,9 +277,11 @@ namespace VoiceCoderTwo
             }
             else
             {
-                // Specifically for debugging.
                 foreach (string arg in args.Skip(1))
+                {
                     sre.EmulateRecognize(arg);
+                    Thread.Sleep(250);
+                }
             }
 
             sre.Dispose();

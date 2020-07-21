@@ -15,13 +15,15 @@ namespace VoiceCoderTwo.Definitions
         };
 
         public readonly string Name;
+        public readonly Mode? Parent;
         public readonly List<Command> Commands = new List<Command>();
         public readonly Dictionary<string, Mode> Modes = new Dictionary<string, Mode>();
         public readonly List<VCGrammar> Grammar = new List<VCGrammar>();
 
-        public Mode(string name, JObject jsonData)
+        public Mode(string name, Mode? parent, JObject jsonData)
         {
             Name = name.ToLower();
+            Parent = parent;
 
             dynamic data = jsonData!;
 
@@ -67,8 +69,12 @@ namespace VoiceCoderTwo.Definitions
 
             try
             {
-                foreach (KeyValuePair<string, JToken?> entry in (JObject)data.modes)
-                    Modes[entry.Key] = new Mode(entry.Key, (JObject)entry.Value!);
+                foreach (KeyValuePair<string, JToken?> entry in (JObject) data.modes)
+                    Modes[entry.Key] = new Mode(entry.Key, this, (JObject) entry.Value!);
+            }
+            catch (ParserException)
+            {
+                throw;
             }
             catch
             {

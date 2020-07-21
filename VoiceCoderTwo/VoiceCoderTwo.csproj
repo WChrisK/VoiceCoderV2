@@ -56,7 +56,8 @@
         <Compile Include="Definitions\GrammarParser.cs" />
         <Compile Include="Definitions\ParserException.cs" />
         <Compile Include="Definitions\VCGrammar.cs" />
-        <Compile Include="EntryPoint.cs" />
+        <Compile Include="FunctionsHelper.cs" />
+        <Compile Include="VoiceCoderV2.cs" />
         <Compile Include="Functions.cs" />
         <Compile Include="InputKey.cs" />
         <Compile Include="Native.cs" />

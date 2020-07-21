@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace VoiceCoderTwo.Definitions
@@ -30,6 +32,10 @@ namespace VoiceCoderTwo.Definitions
                     i++;
                     ConsumeHeldOrReleaseKey(ref i, c);
                     break;
+                case '{':
+                    i++;
+                    ConsumeRepeat(ref i);
+                    break;
                 case '<':
                     i++;
                     ConsumeMouseCoordinate(ref i);
@@ -48,6 +54,8 @@ namespace VoiceCoderTwo.Definitions
                 case '8':
                 case '9':
                     elements.Add(ConsumeNumber(ref i));
+                    // Number consumption overshoots by one, correct for that.
+                    i--;
                     break;
                 default:
                     elements.Add(ConsumeKey(ref i));
@@ -80,7 +88,7 @@ namespace VoiceCoderTwo.Definitions
                 index++;
 
                 if (index >= text.Length)
-                    throw new ParserException("Missing closing ` in action");
+                    throw new ParserException($"Missing closing ` in action (line: \"{text}\")");
             }
         }
 
@@ -91,21 +99,33 @@ namespace VoiceCoderTwo.Definitions
             elements.Add(inputKeyEvent);
         }
 
+        private void ConsumeRepeat(ref int i)
+        {
+            int repeat = ConsumeNumber(ref i);
+            if (text[i] != '}')
+                throw new ParserException($"Expected closing }} after repeat number (line: \"{text}\")");
+            i++;
+
+            // We go to `repeat - 1` because it's already in there once.
+            object elementToRepeat = elements.Last();
+            for (int times = 0; times < repeat - 1; times++)
+                elements.Add(elementToRepeat);
+        }
+
         private void ConsumeMouseCoordinate(ref int i)
         {
             int x = ConsumeNumber(ref i);
             ConsumeSpacesIfAny(ref i);
 
             if (text[i] != ',')
-                throw new ParserException("Expected comma after mouse X coordinate");
+                throw new ParserException($"Expected comma after mouse X coordinate (line: \"{text}\")");
             i++;
 
             ConsumeSpacesIfAny(ref i);
             int y = ConsumeNumber(ref i);
 
             if (text[i] != '>')
-                throw new ParserException("Expected closing angle bracket immediately after mouse Y coordinate");
-            i++;
+                throw new ParserException($"Expected closing angle bracket immediately after mouse Y coordinate (line: \"{text}\")");
 
             elements.Add(new Coordinate(x, y));
         }
@@ -128,15 +148,22 @@ namespace VoiceCoderTwo.Definitions
             while (i < text.Length)
             {
                 char c = text[i];
-                if (!char.IsLetter(c))
+
+                // We have to support things like F12 so we have to also take
+                // immediately adjacent numbers as part of the key.
+                if (!char.IsLetter(c) && !char.IsDigit(c))
                     break;
 
                 builder.Append(c);
                 i++;
             }
 
+            // We want to roll back and go onto the last letter so that when
+            // the main loop increments, it doesn't overshoot by a character.
+            i--;
+
             string keyName = builder.ToString();
-            return InputKeyHelper.ToKey(keyName) ?? throw new ParserException($"Unexpected key: {keyName}");
+            return InputKeyHelper.ToKey(keyName) ?? throw new ParserException($"Unexpected key: {keyName} (line: \"{text}\")");
         }
 
         private int ConsumeNumber(ref int i)

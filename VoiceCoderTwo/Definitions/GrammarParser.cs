@@ -216,12 +216,13 @@ namespace VoiceCoderTwo.Definitions
                 switch (tokens[index])
                 {
                 case "+":
-                    choices.RepeatMax = int.MaxValue;
+                    choices.RepeatMin = 1;
+                    choices.RepeatMax = 1000;
                     index++;
                     break;
                 case "*":
                     choices.RepeatMin = 0;
-                    choices.RepeatMax = int.MaxValue;
+                    choices.RepeatMax = 1000;
                     index++;
                     break;
                 }
