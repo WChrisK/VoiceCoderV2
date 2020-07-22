@@ -14,10 +14,12 @@ namespace VoiceCoderTwo
     public static class VoiceCoderV2
     {
         public static bool HaltVoiceCoder;
+        public static string DefinitionPath = "definitions.json";
         private static readonly SpeechRecognitionEngine sre = new SpeechRecognitionEngine();
         private static readonly Stack<Mode> loadedModes = new Stack<Mode>();
         private static Mode rootMode = null!;
         private static List<object> lastActionCommand = new List<object>();
+        private static bool initialLoad = true;
 
         private static Mode currentMode => loadedModes.Count > 0 ? loadedModes.Peek() : rootMode;
 
@@ -225,19 +227,32 @@ namespace VoiceCoderTwo
 
         public static void LoadDefinitions(string path)
         {
-            string text = File.ReadAllText(path);
-            object data = JsonConvert.DeserializeObject(text) ?? throw new NullReferenceException($"Unable to read definitions at: {path}");
+            Console.WriteLine($"Loading definitions from: {path}");
+            Dictionary<string, GrammarNode> previousDefines = Mode.Defines;
 
             try
             {
+                string text = File.ReadAllText(path);
+                object data = JsonConvert.DeserializeObject(text) ?? throw new NullReferenceException($"Unable to read definitions at: {path}");
+
+                Mode.Defines = Mode.CreateDefaultDefines();
                 rootMode = new Mode("", null, (JObject)data);
+                loadedModes.Clear();
+                lastActionCommand.Clear();
+                sre.UnloadAllGrammars();
             }
-            catch (ParserException e)
+            catch (Exception e)
             {
                 Console.WriteLine("Your definitions are malformed, program execution cannot continue.");
                 Console.WriteLine("Resolve the syntax errors or missing functions and re-run.");
                 Console.WriteLine($"Reason: {e.Message}");
-                Environment.Exit(1);
+
+                if (initialLoad)
+                    Environment.Exit(1);
+
+                Mode.Defines = previousDefines;
+                Console.WriteLine("Rolled back to old definitions");
+                return;
             }
 
             RecursivelyAddModes(rootMode, "");
@@ -266,7 +281,9 @@ namespace VoiceCoderTwo
                 return;
             }
 
+            DefinitionPath = args[0];
             LoadDefinitions(args[0]);
+            initialLoad = false;
 
             sre.SpeechHypothesized += Speech_HandleHypothesized;
             sre.SpeechRecognized += Speech_HandleRecognized;

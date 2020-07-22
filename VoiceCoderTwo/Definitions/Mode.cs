@@ -9,11 +9,7 @@ namespace VoiceCoderTwo.Definitions
     {
         private const string DictationVariableName = "dictate";
         private const string WildcardVariableName = "wildcard";
-        public static readonly Dictionary<string, GrammarNode> Defines = new Dictionary<string, GrammarNode>
-        {
-            [DictationVariableName] = new GrammarNode { IsDictation = true },
-            [WildcardVariableName] = new GrammarNode { IsWildcard = true }
-        };
+        public static Dictionary<string, GrammarNode> Defines = CreateDefaultDefines();
 
         public readonly string Name;
         public readonly Mode? Parent;
@@ -76,6 +72,15 @@ namespace VoiceCoderTwo.Definitions
 
             foreach (Command command in Commands)
                 Grammar.Add(command.Compile());
+        }
+
+        public static Dictionary<string, GrammarNode> CreateDefaultDefines()
+        {
+            return new Dictionary<string, GrammarNode>
+            {
+                [DictationVariableName] = new GrammarNode { IsDictation = true },
+                [WildcardVariableName] = new GrammarNode { IsWildcard = true }
+            };
         }
 
         public override string ToString() => Name;

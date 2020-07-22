@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Threading;
 using static VoiceCoderTwo.FunctionsHelper;
 
@@ -35,6 +36,11 @@ namespace VoiceCoderTwo
         {
             ExitMode(words);
             ChangeMode(words);
+        }
+
+        public static void ReloadDefinitions(string[] words)
+        {
+            VoiceCoderV2.LoadDefinitions(VoiceCoderV2.DefinitionPath);
         }
 
         public static void RepeatAction(string[] words)
@@ -143,6 +149,55 @@ namespace VoiceCoderTwo
 
         #region Code
 
+        public static void EmitCamelCaseWord(string[] words)
+        {
+            StringBuilder builder = new StringBuilder();
+            builder.Append(words[1]);
+
+            foreach (string word in words.Skip(2))
+            {
+                builder.Append(char.ToUpper(word[0]));
+                if (word.Length > 1)
+                    builder.Append(word.Substring(1));
+            }
+
+            Native.EmitKeys(builder.ToString());
+        }
+
+        public static void EmitPascalCaseWord(string[] words)
+        {
+            StringBuilder builder = new StringBuilder();
+
+            foreach (string word in words.Skip(1))
+            {
+                builder.Append(char.ToUpper(word[0]));
+                if (word.Length > 1)
+                    builder.Append(word.Substring(1));
+            }
+
+            Native.EmitKeys(builder.ToString());
+        }
+
+        public static void EmitSpelledWord(string[] words)
+        {
+            StringBuilder builder = new StringBuilder();
+            bool useUpper = false;
+
+            for (int i = 1; i < words.Length; i++)
+            {
+                if (words[i] == "up")
+                {
+                    useUpper = true;
+                    continue;
+                }
+
+                builder.Append(useUpper ? words[i].ToUpper() : words[i]);
+                useUpper = false;
+            }
+
+            Native.EmitKeys(builder.ToString());
+        }
+
         public static void SymbolEmit(string[] words)
         {
             if (words.Length == 3)
@@ -197,6 +252,11 @@ namespace VoiceCoderTwo
         public static void EmitStringLiteral(string[] words)
         {
             Native.EmitKeys("\"\"{LEFT}");
+        }
+
+        public static void EmitStringInterpolation(string[] words)
+        {
+            Native.EmitKeys("$\"\"{LEFT}");
         }
 
         #endregion
