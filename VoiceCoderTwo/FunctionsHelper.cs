@@ -4,6 +4,33 @@ namespace VoiceCoderTwo
 {
     public static class FunctionsHelper
     {
+        private static bool IsNumber(string word)
+        {
+            return word switch
+            {
+                "zero" => true,
+                "oh" => true,
+                "one" => true,
+                "two" => true,
+                "three" => true,
+                "four" => true,
+                "five" => true,
+                "six" => true,
+                "seven" => true,
+                "eight" => true,
+                "nine" => true,
+                _ => false
+            };
+        }
+
+        public static int? FindTrailingNumberStartIndex(string[] words)
+        {
+            for (int i = words.Length - 1; i >= 0; i--)
+                if (IsNumber(words[i]))
+                    return i;
+            return null;
+        }
+
         public static int ReadInteger(string[] words, int startIndex, out int endIndexExclusive)
         {
             bool negative = words[startIndex] == "minus" || words[startIndex] == "negative";

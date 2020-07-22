@@ -37,6 +37,18 @@ namespace VoiceCoderTwo
             ChangeMode(words);
         }
 
+        public static void RepeatAction(string[] words)
+        {
+            int? start = FindTrailingNumberStartIndex(words);
+            if (start == null)
+                return;
+
+            // We repeat minus one because we already did the action once.
+            int repeatAmount = ReadNumber(words, start.Value, out _);
+            for (int repeat = 0; repeat < repeatAmount - 1; repeat++)
+                VoiceCoderV2.EmitLastActionKeys();
+        }
+
         #endregion
 
         #region Mouse
@@ -107,6 +119,12 @@ namespace VoiceCoderTwo
             int centerX = box.X + (box.Width / 2);
             int centerY = box.Y + (box.Height / 2);
             Native.MoveMouseAbsolute(centerX, centerY);
+        }
+
+        public static void PrintMouseCoordinates(string[] words)
+        {
+            Point point = Native.GetCursorPosition();
+            Console.WriteLine($"<{point.X}, {point.Y}>");
         }
 
         #endregion
@@ -182,6 +200,7 @@ namespace VoiceCoderTwo
         }
 
         #endregion
+
         public static Action<string[]>? GetCallable(string funcName)
         {
             try
