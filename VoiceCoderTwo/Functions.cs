@@ -5,6 +5,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using WindowsInput;
+using WindowsInput.Native;
 using static VoiceCoderTwo.FunctionsHelper;
 
 namespace VoiceCoderTwo
@@ -50,9 +52,52 @@ namespace VoiceCoderTwo
                 return;
 
             // We repeat minus one because we already did the action once.
-            int repeatAmount = ReadNumber(words, start.Value, out _);
+            int repeatAmount = ReadTrailingNumber(words) ?? 0;
             for (int repeat = 0; repeat < repeatAmount - 1; repeat++)
+            {
                 VoiceCoderV2.EmitLastActionKeys();
+                Thread.Sleep(5);
+            }
+        }
+
+        public static void EmitDictation(string[] words)
+        {
+            Native.EmitKeys(string.Join(" ", words.Skip(1)));
+        }
+
+        public static void EmitSpelledWord(string[] words)
+        {
+            StringBuilder builder = new StringBuilder();
+            bool useUpper = false;
+
+            for (int i = 1; i < words.Length; i++)
+            {
+                if (words[i] == "capital")
+                {
+                    useUpper = true;
+                    continue;
+                }
+
+                builder.Append(useUpper ? char.ToUpper(words[i][0]) : words[i][0]);
+                useUpper = false;
+            }
+
+            Native.EmitKeys(builder.ToString());
+        }
+
+        public static void EmitKeys(string[] words)
+        {
+            List<object> keys = new List<object>();
+
+            foreach (string word in words)
+            {
+                InputKeyEvent? keyEvent = InputKeyHelper.ToKey(word)?.ToEvent();
+                if (keyEvent != null)
+                    keys.Add(keyEvent);
+            }
+
+            if (keys.Count > 0)
+                VoiceCoderV2.SendActionKeys(keys);
         }
 
         #endregion
@@ -149,6 +194,11 @@ namespace VoiceCoderTwo
 
         #region Code
 
+        public static void ChangeModeNavigate(string[] words)
+        {
+            VoiceCoderV2.ChangeMode("navigate");
+        }
+
         public static void EmitCamelCaseWord(string[] words)
         {
             StringBuilder builder = new StringBuilder();
@@ -173,26 +223,6 @@ namespace VoiceCoderTwo
                 builder.Append(char.ToUpper(word[0]));
                 if (word.Length > 1)
                     builder.Append(word.Substring(1));
-            }
-
-            Native.EmitKeys(builder.ToString());
-        }
-
-        public static void EmitSpelledWord(string[] words)
-        {
-            StringBuilder builder = new StringBuilder();
-            bool useUpper = false;
-
-            for (int i = 1; i < words.Length; i++)
-            {
-                if (words[i] == "up")
-                {
-                    useUpper = true;
-                    continue;
-                }
-
-                builder.Append(useUpper ? words[i].ToUpper() : words[i]);
-                useUpper = false;
             }
 
             Native.EmitKeys(builder.ToString());
@@ -236,6 +266,16 @@ namespace VoiceCoderTwo
             Native.EmitKeys(words[1]);
         }
 
+        public static void EmitInteger(string[] words)
+        {
+            Native.EmitKeys(ReadInteger(words, 1, out _).ToString());
+        }
+
+        public static void EmitPrimitive(string[] words)
+        {
+            Native.EmitKeys(words[1] == "you" ? $"u{words[2]}" : words[1]);
+        }
+
         public static void CreateNewFieldOrMethod(string[] words)
         {
             Native.EmitKeys(string.Join(" ", words.Skip(1)) + " ");
@@ -257,6 +297,28 @@ namespace VoiceCoderTwo
         public static void EmitStringInterpolation(string[] words)
         {
             Native.EmitKeys("$\"\"{LEFT}");
+        }
+
+        #endregion
+
+        #region System
+
+        public static void ChangeWindow(string[] words)
+        {
+            int tabAmount = ReadTrailingNumber(words) ?? 1;
+
+            InputSimulator s = new InputSimulator();
+            s.Keyboard.KeyDown(VirtualKeyCode.MENU);
+            Thread.Sleep(50);
+
+            for (int i = 0; i < tabAmount; i++)
+            {
+                s.Keyboard.KeyPress(VirtualKeyCode.TAB);
+                Thread.Sleep(50);
+            }
+
+            Thread.Sleep(50);
+            s.Keyboard.KeyUp(VirtualKeyCode.MENU);
         }
 
         #endregion

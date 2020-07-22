@@ -31,13 +31,23 @@ namespace VoiceCoderTwo
             return null;
         }
 
+        public static int? ReadTrailingNumber(string[] words)
+        {
+            int? start = FindTrailingNumberStartIndex(words);
+            if (start == null)
+                return null;
+
+            return ReadNumber(words, start.Value, out _);
+        }
+
         public static int ReadInteger(string[] words, int startIndex, out int endIndexExclusive)
         {
             bool negative = words[startIndex] == "minus" || words[startIndex] == "negative";
             if (negative)
                 startIndex++;
 
-            return ReadNumber(words, startIndex, out endIndexExclusive);
+            int number = ReadNumber(words, startIndex, out endIndexExclusive);
+            return negative ? -number : number;
         }
 
         public static int ReadNumber(string[] words, int startIndex, out int endIndexExclusive)

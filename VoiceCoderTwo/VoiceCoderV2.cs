@@ -5,6 +5,8 @@ using System.Linq;
 using System.Speech.Recognition;
 using System.Text;
 using System.Threading;
+using WindowsInput;
+using WindowsInput.Native;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using VoiceCoderTwo.Definitions;
@@ -15,6 +17,7 @@ namespace VoiceCoderTwo
     {
         public static bool HaltVoiceCoder;
         public static string DefinitionPath = "definitions.json";
+        private static readonly InputSimulator inputSimulator = new InputSimulator();
         private static readonly SpeechRecognitionEngine sre = new SpeechRecognitionEngine();
         private static readonly Stack<Mode> loadedModes = new Stack<Mode>();
         private static Mode rootMode = null!;
@@ -87,6 +90,7 @@ namespace VoiceCoderTwo
 
         public static void EmitLastActionKeys()
         {
+            HashSet<VirtualKeyCode> keysDown = new HashSet<VirtualKeyCode>();
             StringBuilder sendKeysString = new StringBuilder();
 
             foreach (object actionKey in lastActionCommand)
@@ -117,50 +121,24 @@ namespace VoiceCoderTwo
                     }
                     break;
 
-                case InputKey inputKey:
-                    sendKeysString.Append(inputKey switch
+                case InputKeyEvent inputKeyEvent:
+                    VirtualKeyCode virtualKeyCode = inputKeyEvent.ToVirtualKeyCode();
+                    if (inputKeyEvent.Down)
                     {
-                        InputKey.Tab => "{TAB}",
-                        InputKey.Shift => "+",
-                        InputKey.Control => "^",
-                        InputKey.Alt => "%",
-                        InputKey.Enter => "{ENTER}",
-                        InputKey.Insert => "{INSERT}",
-                        InputKey.Backspace => "{BACKSPACE}",
-                        InputKey.Delete => "{DELETE}",
-                        InputKey.Home => "{HOME}",
-                        InputKey.End => "{END}",
-                        InputKey.PageUp => "{PGUP}",
-                        InputKey.PageDown => "{PGDN}",
-                        InputKey.Left => "{LEFT}",
-                        InputKey.Right => "{RIGHT}",
-                        InputKey.Up => "{UP}",
-                        InputKey.Down => "{DOWN}",
-                        InputKey.Escape => "{ESCAPE}",
-                        InputKey.F1 => "{F1}",
-                        InputKey.F2 => "{F2}",
-                        InputKey.F3 => "{F3}",
-                        InputKey.F4 => "{F4}",
-                        InputKey.F5 => "{F5}",
-                        InputKey.F6 => "{F6}",
-                        InputKey.F7 => "{F7}",
-                        InputKey.F8 => "{F8}",
-                        InputKey.F9 => "{F9}",
-                        InputKey.F10 => "{F10}",
-                        InputKey.F11 => "{F11}",
-                        InputKey.F12 => "{F12}",
-                        InputKey.CapsLock => "{CAPSLOCK}",
-                        _ => throw new Exception($"Unknown input key: {inputKey}")
-                    });
+                        keysDown.Add(virtualKeyCode);
+                        inputSimulator.Keyboard.KeyDown(virtualKeyCode);
+                    }
+                    else if (inputKeyEvent.Up)
+                    {
+                        keysDown.Remove(virtualKeyCode);
+                        inputSimulator.Keyboard.KeyUp(virtualKeyCode);
+                    }
+                    else
+                        inputSimulator.Keyboard.KeyPress(virtualKeyCode);
                     break;
 
                 case MouseAction mouseAction:
                     mouseAction.Execute();
-                    break;
-
-                case Coordinate point:
-                    DeployAndClearSendKeysBuffer();
-                    Native.MoveMouseAbsolute(point.X, point.Y);
                     break;
 
                 case int delayMs:
@@ -176,6 +154,12 @@ namespace VoiceCoderTwo
 
             DeployAndClearSendKeysBuffer();
 
+            // Commands are allowed to have a key stay down to prevent the need
+            // of typing -Key for every +Key, so we release them for any that
+            // are left down.
+            foreach (VirtualKeyCode keyStillDown in keysDown)
+                inputSimulator.Keyboard.KeyUp(keyStillDown);
+
             void DeployAndClearSendKeysBuffer()
             {
                 if (sendKeysString.Length == 0)
@@ -186,7 +170,7 @@ namespace VoiceCoderTwo
             }
         }
 
-        private static void SendActionKeys(List<object> actionKeys)
+        public static void SendActionKeys(List<object> actionKeys)
         {
             lastActionCommand = actionKeys;
             EmitLastActionKeys();

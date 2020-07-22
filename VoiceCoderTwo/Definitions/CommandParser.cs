@@ -37,7 +37,7 @@ namespace VoiceCoderTwo.Definitions
                     break;
                 case '<':
                     i++;
-                    ConsumeMouseCoordinate(ref i);
+                    ConsumeMouse(ref i);
                     break;
                 case ' ':
                 case '\t':
@@ -93,8 +93,9 @@ namespace VoiceCoderTwo.Definitions
 
         private void ConsumeHeldOrReleaseKey(ref int i, char c)
         {
-            InputKey inputKey = ConsumeKey(ref i);
-            InputKeyEvent inputKeyEvent = new InputKeyEvent(inputKey, c == '+', c == '-');
+            InputKeyEvent inputKeyEvent = ConsumeKey(ref i);
+            inputKeyEvent.Down = c == '+';
+            inputKeyEvent.Up = c == '-';
             elements.Add(inputKeyEvent);
         }
 
@@ -111,7 +112,7 @@ namespace VoiceCoderTwo.Definitions
                 elements.Add(elementToRepeat);
         }
 
-        private void ConsumeMouseCoordinate(ref int i)
+        private void ConsumeMouse(ref int i)
         {
             int? x = null;
             int? y = null;
@@ -204,7 +205,7 @@ namespace VoiceCoderTwo.Definitions
             }
         }
 
-        private InputKey ConsumeKey(ref int i)
+        private InputKeyEvent ConsumeKey(ref int i)
         {
             StringBuilder builder = new StringBuilder();
 
@@ -226,7 +227,16 @@ namespace VoiceCoderTwo.Definitions
             i--;
 
             string keyName = builder.ToString();
-            return InputKeyHelper.ToKey(keyName) ?? throw new ParserException($"Unexpected key: {keyName} (line: \"{text}\")");
+            InputKey key = InputKeyHelper.ToKey(keyName) ?? throw new ParserException($"Unexpected key: {keyName} (line: \"{text}\")");
+            InputKeyEvent inputKeyEvent = new InputKeyEvent(key);
+
+            // For laziness reasons we assume pressing the key holds it down
+            // for the entire duration. The user needs to manually release
+            // the key or it stays down until the end.
+            if (key == InputKey.Control || key == InputKey.Alt || key == InputKey.Shift)
+                inputKeyEvent.Down = true;
+
+            return inputKeyEvent;
         }
 
         private int ConsumeNumber(ref int i)

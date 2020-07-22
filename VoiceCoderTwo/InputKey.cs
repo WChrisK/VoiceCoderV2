@@ -1,4 +1,7 @@
-﻿namespace VoiceCoderTwo
+﻿using System;
+using WindowsInput.Native;
+
+namespace VoiceCoderTwo
 {
     public enum InputKey
     {
@@ -31,27 +34,73 @@
         Right,
         Shift,
         Tab,
-        Up
+        Up,
+        Windows
     }
 
     public class InputKeyEvent
     {
-        public readonly InputKey Key;
-        public readonly bool Press;
-        public readonly bool Release;
+        public InputKey Key;
+        public bool Down;
+        public bool Up;
 
-        public InputKeyEvent(InputKey key, bool press = false, bool release = false)
+        public InputKeyEvent(InputKey key, bool down = false, bool up = false)
         {
             Key = key;
-            Press = press;
-            Release = release;
+            Down = down;
+            Up = up;
         }
 
-        public override string ToString() => $"{Key} (press = {Press}, release = {Release})";
+        public VirtualKeyCode ToVirtualKeyCode()
+        {
+            return Key switch
+            {
+                InputKey.Alt => VirtualKeyCode.MENU,
+                InputKey.Backspace => VirtualKeyCode.BACK,
+                InputKey.CapsLock => VirtualKeyCode.CAPITAL,
+                InputKey.Control => VirtualKeyCode.CONTROL,
+                InputKey.Delete => VirtualKeyCode.DELETE,
+                InputKey.Down => VirtualKeyCode.DOWN,
+                InputKey.End => VirtualKeyCode.END,
+                InputKey.Enter => VirtualKeyCode.RETURN,
+                InputKey.Escape => VirtualKeyCode.ESCAPE,
+                InputKey.F1 => VirtualKeyCode.F1,
+                InputKey.F2 => VirtualKeyCode.F2,
+                InputKey.F3 => VirtualKeyCode.F3,
+                InputKey.F4 => VirtualKeyCode.F4,
+                InputKey.F5 => VirtualKeyCode.F5,
+                InputKey.F6 => VirtualKeyCode.F6,
+                InputKey.F7 => VirtualKeyCode.F7,
+                InputKey.F8 => VirtualKeyCode.F8,
+                InputKey.F9 => VirtualKeyCode.F9,
+                InputKey.F10 => VirtualKeyCode.F10,
+                InputKey.F11 => VirtualKeyCode.F11,
+                InputKey.F12 => VirtualKeyCode.F12,
+                InputKey.Home => VirtualKeyCode.HOME,
+                InputKey.Insert => VirtualKeyCode.INSERT,
+                InputKey.Left => VirtualKeyCode.LEFT,
+                InputKey.PageDown => VirtualKeyCode.NEXT,
+                InputKey.PageUp => VirtualKeyCode.PRIOR,
+                InputKey.Right => VirtualKeyCode.RIGHT,
+                InputKey.Shift => VirtualKeyCode.SHIFT,
+                InputKey.Tab => VirtualKeyCode.TAB,
+                InputKey.Up => VirtualKeyCode.UP,
+                InputKey.Windows => VirtualKeyCode.LWIN,
+                _ => throw new Exception($"Unsupported input key type: {Key}")
+            };
+        }
+
+        public override string ToString() => $"{Key} (press = {Down}, release = {Up})";
     }
 
     public static class InputKeyHelper
     {
+        public static InputKeyEvent ToEvent(this InputKey key)
+        {
+            bool defaultDown = (key == InputKey.Alt || key == InputKey.Control || key == InputKey.Shift);
+            return new InputKeyEvent(key, defaultDown);
+        }
+
         public static InputKey? ToKey(string text)
         {
             return text.ToLower() switch
@@ -93,6 +142,7 @@
                 "shift" => InputKey.Shift,
                 "tab" => InputKey.Tab,
                 "up" => InputKey.Up,
+                "windows" => InputKey.Windows,
                 _ => null
             };
         }
