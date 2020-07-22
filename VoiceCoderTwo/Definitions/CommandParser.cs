@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -114,7 +113,18 @@ namespace VoiceCoderTwo.Definitions
 
         private void ConsumeMouseCoordinate(ref int i)
         {
-            int x = ConsumeNumber(ref i);
+            int? x = null;
+            int? y = null;
+            MouseClick? clickType = null;
+
+            // Would be nice to clean up this abomination at some point.
+            char? xType = ConsumeMouseRelativeIfPresent(ref i);
+            if (text[i] != ',')
+            {
+                x = ConsumeNumber(ref i);
+                if (xType != null && xType.Value == '-')
+                    x = -x;
+            }
             ConsumeSpacesIfAny(ref i);
 
             if (text[i] != ',')
@@ -122,12 +132,65 @@ namespace VoiceCoderTwo.Definitions
             i++;
 
             ConsumeSpacesIfAny(ref i);
-            int y = ConsumeNumber(ref i);
+            char? yType = ConsumeMouseRelativeIfPresent(ref i);
+            if (text[i] != ',')
+            {
+                y = ConsumeNumber(ref i);
+                if (yType != null && yType.Value == '-')
+                    y = -y;
+            }
+
+            ConsumeSpacesIfAny(ref i);
+            if (text[i] == ',')
+            {
+                i++;
+                ConsumeSpacesIfAny(ref i);
+                clickType = ConsumeClickType(ref i);
+            }
 
             if (text[i] != '>')
                 throw new ParserException($"Expected closing angle bracket immediately after mouse Y coordinate (line: \"{text}\")");
 
-            elements.Add(new Coordinate(x, y));
+            MouseAction mouseAction = new MouseAction
+            {
+                X = x,
+                Y = y,
+                AbsoluteX = xType == null,
+                AbsoluteY = yType == null,
+                MouseClick = clickType
+            };
+
+            elements.Add(mouseAction);
+        }
+
+        private MouseClick ConsumeClickType(ref int i)
+        {
+            if (i >= text.Length)
+                throw new ParserException("Expecting click type, but ran out of tokens");
+
+            char clickLetter = text[i];
+            i++;
+
+            return char.ToUpper(clickLetter) switch
+            {
+                'L' => MouseClick.Left,
+                'M' => MouseClick.Middle,
+                'R' => MouseClick.Right,
+                _ => throw new ParserException($"Unexpected mouse click character: {clickLetter}")
+            };
+        }
+
+        private char? ConsumeMouseRelativeIfPresent(ref int i)
+        {
+            if (i >= text.Length)
+                return null;
+
+            char c = text[i];
+            if (c != '+' && c != '-')
+                return null;
+
+            i++;
+            return c;
         }
 
         private void ConsumeSpacesIfAny(ref int i)

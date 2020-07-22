@@ -152,6 +152,10 @@ namespace VoiceCoderTwo
                     });
                     break;
 
+                case MouseAction mouseAction:
+                    mouseAction.Execute();
+                    break;
+
                 case Coordinate point:
                     DeployAndClearSendKeysBuffer();
                     Native.MoveMouseAbsolute(point.X, point.Y);

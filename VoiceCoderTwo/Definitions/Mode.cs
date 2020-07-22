@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.CSharp.RuntimeBinder;
 using Newtonsoft.Json.Linq;
 
 namespace VoiceCoderTwo.Definitions
@@ -29,56 +30,48 @@ namespace VoiceCoderTwo.Definitions
 
             try
             {
-                foreach (KeyValuePair<string, JToken?> entry in (JObject)data.defines)
+                if (data.defines != null)
                 {
-                    string defineNameLower = entry.Key.ToLower();
-                    if (Defines.ContainsKey(defineNameLower))
-                        Console.WriteLine($"Error: Overwriting define {entry.Key}");
-                    if (defineNameLower == DictationVariableName)
-                        throw new ParserException($"Not allowed to redefine {DictationVariableName}");
+                    foreach (KeyValuePair<string, JToken?> entry in (JObject)data.defines)
+                    {
+                        string defineNameLower = entry.Key.ToLower();
+                        if (Defines.ContainsKey(defineNameLower))
+                            Console.WriteLine($"Error: Overwriting define {entry.Key}");
+                        if (defineNameLower == DictationVariableName)
+                            throw new ParserException($"Not allowed to redefine {DictationVariableName}");
 
-                    GrammarNode? node = GrammarParser.Parse((string)entry.Value!);
-                    Defines[defineNameLower] = node ?? throw new ParserException($"Expected text for grammar action (is it an empty string?) for: '{defineNameLower}'");
+                        GrammarNode? node = GrammarParser.Parse((string)entry.Value!);
+                        Defines[defineNameLower] = node ?? throw new ParserException($"Expected text for grammar action (is it an empty string?) for: '{defineNameLower}'");
+                    }
                 }
             }
-            catch (ParserException)
+            catch (RuntimeBinderException)
             {
-                throw;
-            }
-            catch
-            {
-                // If it doesn't exist, do nothing.
             }
 
             try
             {
-                foreach (var element in (JArray)data.commands)
+                if (data.commands != null)
                 {
-                    Command command = new Command(this, (JObject)element);
-                    Commands.Add(command);
+                    foreach (var element in (JArray)data.commands)
+                    {
+                        Command command = new Command(this, (JObject)element);
+                        Commands.Add(command);
+                    }
                 }
             }
-            catch (ParserException)
+            catch (RuntimeBinderException)
             {
-                throw;
-            }
-            catch
-            {
-                // If it doesn't exist, do nothing.
             }
 
             try
             {
-                foreach (KeyValuePair<string, JToken?> entry in (JObject) data.modes)
-                    Modes[entry.Key] = new Mode(entry.Key, this, (JObject) entry.Value!);
+                if (data.modes != null)
+                    foreach (KeyValuePair<string, JToken?> entry in (JObject)data.modes)
+                        Modes[entry.Key] = new Mode(entry.Key, this, (JObject)entry.Value!);
             }
-            catch (ParserException)
+            catch (RuntimeBinderException)
             {
-                throw;
-            }
-            catch
-            {
-                // If it doesn't exist, do nothing.
             }
 
             foreach (Command command in Commands)

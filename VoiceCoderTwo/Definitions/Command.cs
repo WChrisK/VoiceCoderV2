@@ -19,16 +19,10 @@ namespace VoiceCoderTwo.Definitions
 
             dynamic data = jObject;
 
-            try
-            {
+            if (data.name != null)
                 Name = data.name;
-            }
-            catch
-            {
-                // Ignore if missing.
-            }
 
-            try
+            if (data.function != null)
             {
                 string functionName = (string)data.function;
                 if (functionName != null)
@@ -37,10 +31,6 @@ namespace VoiceCoderTwo.Definitions
                     if (Function == null)
                         Console.WriteLine($"Could not fund function named: {data.function}");
                 }
-            }
-            catch
-            {
-                // Ignore if missing.
             }
 
             string grammarStr = (string)data.grammar ?? throw new Exception($"Missing 'grammar' field");
@@ -53,9 +43,7 @@ namespace VoiceCoderTwo.Definitions
                     throw new ParserException($"Function cannot be found and no action field found for name '{Name}'");
             }
             else
-            {
                 ActionKeys = CommandParser.Parse(actionStr) ?? throw new ParserException($"Malformed action: {actionStr}");
-            }
 
             Name ??= grammarStr;
         }

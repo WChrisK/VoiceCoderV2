@@ -238,7 +238,7 @@ namespace VoiceCoderTwo.Definitions
 
             string lowerName = tokens[index].ToLower();
             if (!Mode.Defines.ContainsKey(lowerName))
-                throw CreateAndLogException("Cannot lookup defined variable");
+                throw CreateAndLogException($"Cannot lookup defined variable: {lowerName}");
             index++;
 
             GrammarNode node = new GrammarNode(Mode.Defines[lowerName]);

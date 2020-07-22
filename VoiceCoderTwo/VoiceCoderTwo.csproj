@@ -54,6 +54,7 @@
         <Compile Include="Definitions\GrammarNode.cs" />
         <Compile Include="Definitions\Mode.cs" />
         <Compile Include="Definitions\GrammarParser.cs" />
+        <Compile Include="Definitions\MouseAction.cs" />
         <Compile Include="Definitions\ParserException.cs" />
         <Compile Include="Definitions\VCGrammar.cs" />
         <Compile Include="FunctionsHelper.cs" />
