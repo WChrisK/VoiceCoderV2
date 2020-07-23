@@ -32,8 +32,7 @@
                 { "grammar": "page down [$numbers]", "action": "PgDn", "function": "RepeatAction" },
                 { "grammar": "back", "action": "Backspace" },
                 { "grammar": "close", "action": "Ctrl `w`" },
-                { "grammar": "open (c | d)", "function": "OpenSystemDrive" },
-                { "grammar": "left [$numbers]", "action": "Left", "function": "RepeatAction" }
+                { "grammar": "open (c | d)", "function": "OpenSystemDrive" }
             ]
        },
         "mouse": {
@@ -126,6 +125,7 @@
                 { "grammar": "editor run", "action": "Ctrl `e`" },
                 { "grammar": "editor debug", "action": "Shift F9" },
                 { "grammar": "editor build", "action": "Ctrl F9" },
+                { "grammar": "editor close tab", "action": "Ctrl `w`" },
                 { "grammar": "lambda", "action": "` => `" },
                 { "grammar": "assign", "action": "` = `" },
                 { "grammar": "symbol (array | index | generic | paren | braces | [bitwise] and | [bitwise] or | not | complement | plus | minus | star | divide | comma | percent | backslash | colon | caret | pipe)", "function": "SymbolEmit" },
