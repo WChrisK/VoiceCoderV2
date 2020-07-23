@@ -21,6 +21,7 @@ namespace VoiceCoderTwo
 
         public static void VoiceCodeMute(string[] words)
         {
+            VoiceCoderV2.SpeechSynthesizer.Speak($"Recognition status: {words[2]}");
             VoiceCoderV2.HaltVoiceCoder = words[2] != "start";
         }
 
@@ -43,6 +44,11 @@ namespace VoiceCoderTwo
         public static void ReloadDefinitions(string[] words)
         {
             VoiceCoderV2.LoadDefinitions(VoiceCoderV2.DefinitionPath);
+        }
+
+        public static void DebugMode(string[] words)
+        {
+            VoiceCoderV2.SpeechSynthesizer.Speak($"Mode: {VoiceCoderV2.CurrentMode.Name}");
         }
 
         public static void RepeatAction(string[] words)
@@ -176,6 +182,7 @@ namespace VoiceCoderTwo
         {
             Point point = Native.GetCursorPosition();
             Console.WriteLine($"<{point.X}, {point.Y}>");
+            VoiceCoderV2.SpeechSynthesizer.Speak($"X {point.X}, Y {point.Y}");
         }
 
         #endregion
@@ -257,6 +264,7 @@ namespace VoiceCoderTwo
                 "colon" => ":",
                 "pipe" => "|",
                 "caret" => "^",
+                "underscore" => "_",
                 _ => throw new Exception($"Unsupported symbol: {words[0]}")
             });
         }

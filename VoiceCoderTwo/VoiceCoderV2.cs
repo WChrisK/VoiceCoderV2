@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Speech.Recognition;
+using System.Speech.Synthesis;
 using System.Text;
 using System.Threading;
 using WindowsInput;
@@ -17,6 +18,7 @@ namespace VoiceCoderTwo
     {
         public static bool HaltVoiceCoder;
         public static string DefinitionPath = "definitions.json";
+        public static readonly SpeechSynthesizer SpeechSynthesizer = new SpeechSynthesizer();
         private static readonly InputSimulator inputSimulator = new InputSimulator();
         private static readonly SpeechRecognitionEngine sre = new SpeechRecognitionEngine();
         private static readonly Stack<Mode> loadedModes = new Stack<Mode>();
@@ -24,7 +26,7 @@ namespace VoiceCoderTwo
         private static List<object> lastActionCommand = new List<object>();
         private static bool initialLoad = true;
 
-        private static Mode currentMode => loadedModes.Count > 0 ? loadedModes.Peek() : rootMode;
+        public static Mode CurrentMode => loadedModes.Count > 0 ? loadedModes.Peek() : rootMode;
 
         private static void RecursivelyAddModes(Mode mode, string path)
         {
@@ -48,30 +50,30 @@ namespace VoiceCoderTwo
 
         public static void ExitMode()
         {
-            if (ReferenceEquals(currentMode, rootMode))
+            if (ReferenceEquals(CurrentMode, rootMode))
             {
                 Console.WriteLine("Cannot exit from global mode");
                 return;
             }
 
-            DisableSreGrammarFor(currentMode);
+            DisableSreGrammarFor(CurrentMode);
             loadedModes.Pop();
 
-            Console.WriteLine("Exited to mode: " + (currentMode.Name == "" ? "<global>" : currentMode.Name));
-            EnableSreGrammarFor(currentMode);
+            Console.WriteLine("Exited to mode: " + (CurrentMode.Name == "" ? "<global>" : CurrentMode.Name));
+            EnableSreGrammarFor(CurrentMode);
         }
 
         public static void ChangeMode(string name)
         {
-            if (!currentMode.Modes.TryGetValue(name, out Mode? mode))
+            if (!CurrentMode.Modes.TryGetValue(name, out Mode? mode))
             {
                 Console.WriteLine($"Cannot find mode to change to: {name}");
                 return;
             }
 
             Console.WriteLine($"Changed to mode: {name}");
-            if (!ReferenceEquals(currentMode, rootMode))
-                DisableSreGrammarFor(currentMode);
+            if (!ReferenceEquals(CurrentMode, rootMode))
+                DisableSreGrammarFor(CurrentMode);
             loadedModes.Push(mode);
             EnableSreGrammarFor(mode);
         }
@@ -206,7 +208,22 @@ namespace VoiceCoderTwo
             if (HaltVoiceCoder)
                 return;
 
+            SpeechSynthesizer.SpeakAsync("Unknown");
+
             Console.WriteLine($"[Rejected] {e.Result.Text}");
+        }
+
+        private static void SetInitialVoice()
+        {
+            foreach (InstalledVoice voice in SpeechSynthesizer.GetInstalledVoices())
+            {
+                VoiceInfo info = voice.VoiceInfo;
+                if (info.Name.Contains("Microsoft Zira Desktop"))
+                {
+                    SpeechSynthesizer.SelectVoice(info.Name);
+                    break;
+                }
+            }
         }
 
         public static void LoadDefinitions(string path)
@@ -232,7 +249,10 @@ namespace VoiceCoderTwo
                 Console.WriteLine($"Reason: {e.Message}");
 
                 if (initialLoad)
+                {
+                    SpeechSynthesizer.SpeakAsync("Error loading definitions");
                     Environment.Exit(1);
+                }
 
                 Mode.Defines = previousDefines;
                 Console.WriteLine("Rolled back to old definitions");
@@ -265,31 +285,47 @@ namespace VoiceCoderTwo
                 return;
             }
 
-            DefinitionPath = args[0];
-            LoadDefinitions(args[0]);
-            initialLoad = false;
-
-            sre.SpeechHypothesized += Speech_HandleHypothesized;
-            sre.SpeechRecognized += Speech_HandleRecognized;
-            sre.SpeechRecognitionRejected += Speech_HandleRejected;
-            sre.SetInputToDefaultAudioDevice();
-
-            if (args.Length <= 1)
+            try
             {
-                sre.RecognizeAsync(RecognizeMode.Multiple);
-                Console.ReadLine();
-                sre.RecognizeAsyncStop();
-            }
-            else
-            {
-                foreach (string arg in args.Skip(1))
+                SetInitialVoice();
+                DefinitionPath = args[0];
+                LoadDefinitions(args[0]);
+                initialLoad = false;
+
+                sre.SpeechHypothesized += Speech_HandleHypothesized;
+                sre.SpeechRecognized += Speech_HandleRecognized;
+                sre.SpeechRecognitionRejected += Speech_HandleRejected;
+                sre.SetInputToDefaultAudioDevice();
+
+                if (args.Length <= 1)
                 {
-                    sre.EmulateRecognize(arg);
-                    Thread.Sleep(250);
+                    SpeechSynthesizer.Speak("Voice coder active");
+
+                    sre.RecognizeAsync(RecognizeMode.Multiple);
+                    Console.ReadLine();
+                    sre.RecognizeAsyncStop();
+
+                    SpeechSynthesizer.Speak("Goodbye");
+                }
+                else
+                {
+                    foreach (string arg in args.Skip(1))
+                    {
+                        sre.EmulateRecognize(arg);
+                        Thread.Sleep(250);
+                    }
                 }
             }
-
-            sre.Dispose();
+            catch
+            {
+                SpeechSynthesizer.Speak("Unexpected exception, program terminating");
+                throw;
+            }
+            finally
+            {
+                SpeechSynthesizer.Dispose();
+                sre.Dispose();
+            }
         }
     }
 }
