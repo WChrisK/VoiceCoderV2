@@ -27,6 +27,12 @@
                 { "grammar": "up [$numbers]", "action": "Up", "function": "RepeatAction" },
                 { "grammar": "down [$numbers]", "action": "Down", "function": "RepeatAction" },
                 { "grammar": "right [$numbers]", "action": "Right", "function": "RepeatAction" },
+                { "grammar": "left [$numbers]", "action": "Left", "function": "RepeatAction" },
+                { "grammar": "page up [$numbers]", "action": "PgUp", "function": "RepeatAction" },
+                { "grammar": "page down [$numbers]", "action": "PgDn", "function": "RepeatAction" },
+                { "grammar": "back", "action": "Backspace" },
+                { "grammar": "close", "action": "Ctrl `w`" },
+                { "grammar": "open (c | d)", "function": "OpenSystemDrive" },
                 { "grammar": "left [$numbers]", "action": "Left", "function": "RepeatAction" }
             ]
        },
@@ -173,6 +179,7 @@
                 { "grammar": "minimize window", "action": "+Windows Down 50 Down" },
                 { "grammar": "maximize window", "action": "+Windows Up 50 Up" },
                 { "grammar": "click icon $number+", "function": "ClickSystemIcon" },
+                { "grammar": "click search", "action": "<170,1060,L>" },
                 { "grammar": "volume (up | down | mute) [$number]", "function": "ChangeSoundVolume" }
             ]
         }
@@ -188,7 +195,7 @@
         { "grammar": "emit keys $specialKeys+", "function": "EmitKeys" }
     ],
     "defines": {
-        "modeNames": "(browser | debug | edit | mouse | navigate | program | shell | system)",
+        "modeNames": "(browser | debug | edit | file | mouse | navigate | program | shell | system)",
         "primitives": "(bool | byte | char | short | ushort | int | uint | long | ulong | float | double | string | object | void)",
         "number": "(zero | oh | one | two | three | four | five | six | seven | eight | nine)",
         "numbers": "$number+",

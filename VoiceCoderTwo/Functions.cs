@@ -323,12 +323,39 @@ namespace VoiceCoderTwo
 
         public static void ClickSystemIcon(string[] words)
         {
-            // TODO
+            int index = ReadTrailingNumber(words) ?? 0;
+            Native.MoveMouseAbsolute(510 + (55 * index), 1055);
+            Native.DoMouseClick(true);
         }
 
         public static void ChangeSoundVolume(string[] words)
         {
-            // TODO
+            int amount = ReadTrailingNumber(words) ?? 1;
+            InputSimulator inputSimulator = new InputSimulator();
+
+            switch (words[1])
+            {
+            case "up":
+                for (int i = 0; i < amount; i++)
+                    inputSimulator.Keyboard.KeyPress(VirtualKeyCode.VOLUME_UP);
+                break;
+            case "down":
+                for (int i = 0; i < amount; i++)
+                    inputSimulator.Keyboard.KeyPress(VirtualKeyCode.VOLUME_DOWN);
+                break;
+            case "mute":
+                inputSimulator.Keyboard.KeyPress(VirtualKeyCode.VOLUME_MUTE);
+                break;
+            }
+        }
+
+        #endregion
+
+        #region Files
+
+        public static void OpenSystemDrive(string[] words)
+        {
+            System.Diagnostics.Process.Start("explorer.exe", $"{words[1]}:");
         }
 
         #endregion
