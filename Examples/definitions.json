@@ -1,0 +1,200 @@
+{
+	"modes": {
+        "browser": {
+            "commands": [
+                { "grammar": "up [$numbers]", "action": "Up", "function": "RepeatAction" },
+                { "grammar": "down [$numbers]", "action": "Down", "function": "RepeatAction" },
+                { "grammar": "right [$numbers]", "action": "Right", "function": "RepeatAction" },
+                { "grammar": "left [$numbers]", "action": "Left", "function": "RepeatAction" },
+                { "grammar": "page up [$numbers]", "action": "PgUp", "function": "RepeatAction" },
+                { "grammar": "page down [$numbers]", "action": "PgDn", "function": "RepeatAction" },
+                { "grammar": "links", "action": "`f` 50 `f`" },
+                { "grammar": "new tab", "action": "Ctrl `n`" },
+                { "grammar": "close tab", "action": "Ctrl `w`" },
+                { "grammar": "restore tab", "action": "Ctrl Shift `t`" },
+                { "grammar": "next tab [$numbers]", "action": "Ctrl PgDn", "function": "RepeatAction" },
+                { "grammar": "previous tab [$numbers]", "action": "Ctrl PgUp", "function": "RepeatAction" },
+                { "grammar": "zoom in", "action": "Ctrl `+`" },
+                { "grammar": "zoom out", "action": "Ctrl `-`" },
+                { "grammar": "zoom reset", "action": "Ctrl `0`" },
+                { "grammar": "focus address", "action": "F6" },
+                { "grammar": "back", "action": "Alt Left" },
+                { "grammar": "forward", "action": "Alt Right" }
+            ]
+       },
+        "file": {
+            "commands": [
+                { "grammar": "up [$numbers]", "action": "Up", "function": "RepeatAction" },
+                { "grammar": "down [$numbers]", "action": "Down", "function": "RepeatAction" },
+                { "grammar": "right [$numbers]", "action": "Right", "function": "RepeatAction" },
+                { "grammar": "left [$numbers]", "action": "Left", "function": "RepeatAction" }
+            ]
+       },
+        "mouse": {
+            "commands": [
+                {"grammar": "move ((up | down) [left | right] | left | right) $numbers", "function": "MouseMove" },
+                { "grammar": "click", "action": "<,,L>" },
+                { "grammar": "click double", "action": "<,,L> 100 <,,L>" },
+                { "grammar": "click right", "action": "<,,R>" },
+                { "grammar": "grid (one | two | three | four)+", "function": "MouseGrid" },
+                { "grammar": "print position", "function": "PrintMouseCoordinates" }
+            ]
+       },
+        "program": {
+            "modes": {
+                "navigate": {
+                    "commands": [
+                        { "grammar": "exit", "function": "ExitMode" },
+                        { "grammar": "enter", "action": "Enter" },
+                        { "grammar": "escape", "action": "Escape" },
+                        { "grammar": "cut [$numbers]", "action": "Ctrl `x`", "function": "RepeatAction" },
+                        { "grammar": "copy", "action": "Ctrl `c`" },
+                        { "grammar": "paste [$numbers]", "action": "Ctrl `v`", "function": "RepeatAction" },
+                        { "grammar": "undo", "action": "Ctrl `z`" },
+                        { "grammar": "back [$numbers]", "action": "Backspace", "function": "RepeatAction" },
+                        { "grammar": "delete [$numbers]", "action": "Delete", "function": "RepeatAction" },
+                        { "grammar": "select up [$numbers]", "action": "Shift Up", "function": "RepeatAction" },
+                        { "grammar": "select down [$numbers]", "action": "Shift Down", "function": "RepeatAction" },
+                        { "grammar": "select left [$numbers]", "action": "Shift Left", "function": "RepeatAction" },
+                        { "grammar": "select right [$numbers]", "action": "Shift Right", "function": "RepeatAction" },
+                        { "grammar": "select next [$numbers]", "action": "Ctrl Shift Right", "function": "RepeatAction" },
+                        { "grammar": "select back [$numbers]", "action": "Ctrl Shift Left", "function": "RepeatAction" },
+                        { "grammar": "select line", "action": "Home 100 Shift End" },
+                        { "grammar": "select all", "action": "Ctrl `a`" },
+                        { "grammar": "go to line $numbers", "function": "GoToLine" },
+                        { "grammar": "home", "action": "Home" },
+                        { "grammar": "end", "action": "End" },
+                        { "grammar": "header", "action": "Ctrl Home" },
+                        { "grammar": "footer", "action": "Ctrl End" },
+                        { "grammar": "move up [$numbers]", "action": "Up", "function": "RepeatAction" },
+                        { "grammar": "move down [$numbers]", "action": "Down", "function": "RepeatAction" },
+                        { "grammar": "move right [$numbers]", "action": "Right", "function": "RepeatAction" },
+                        { "grammar": "move left [$numbers]", "action": "Left", "function": "RepeatAction" },
+                        { "grammar": "page up [$numbers]", "action": "PgUp", "function": "RepeatAction" },
+                        { "grammar": "page down [$numbers]", "action": "PgDn", "function": "RepeatAction" },
+                        { "grammar": "skip right [$numbers]", "action": "Ctrl Right", "function": "RepeatAction" },
+                        { "grammar": "skip left [$numbers]", "action": "Ctrl Left", "function": "RepeatAction" },
+                        { "grammar": "method down [$numbers]", "action": "Alt Down", "function": "RepeatAction" },
+                        { "grammar": "method up [$numbers]", "action": "Alt Up", "function": "RepeatAction" },
+                        { "grammar": "rename", "action": "Shift F6" }
+                    ]
+                },
+                "debug": {
+                    "commands": [
+                        { "grammar": "exit", "function": "ExitMode" },
+                        { "grammar": "stop", "action": "Ctrl F2" },
+                        { "grammar": "resume", "action": "F9" },
+                        { "grammar": "out", "action": "Shift F8" },
+                        { "grammar": "into", "action": "F7" },
+                        { "grammar": "over", "action": "F8" }
+                    ]
+                }
+           },
+            "commands": [
+                { "grammar": "camel $dictate", "function": "EmitCamelCaseWord" },
+                { "grammar": "pascal $dictate", "function": "EmitPascalCaseWord" },
+                { "grammar": "letter $letters", "function": "EmitSpelledWord" },
+                { "grammar": "integer $integer", "function": "EmitInteger" },
+                { "grammar": "navigate", "function": "ChangeModeNavigate" },
+                { "grammar": "cut [$numbers]", "action": "Ctrl `x`", "function": "RepeatAction" },
+                { "grammar": "undo", "action": "Ctrl `z`" },
+                { "grammar": "escape", "action": "Escape" },
+                { "grammar": "backspace [$numbers]", "action": "Backspace", "function": "RepeatAction" },
+                { "grammar": "move up [$numbers]", "action": "Up", "function": "RepeatAction" },
+                { "grammar": "move down [$numbers]", "action": "Down", "function": "RepeatAction" },
+                { "grammar": "move right [$numbers]", "action": "Right", "function": "RepeatAction" },
+                { "grammar": "move left [$numbers]", "action": "Left", "function": "RepeatAction" },
+                { "grammar": "statement if", "action": "`if () {` 100 Enter 100 Up{2}" },
+                { "grammar": "statement else", "action": "`else {` Enter" },
+                { "grammar": "statement else if", "action": "`if () {` Enter 200 Up{2}" },
+                { "grammar": "statement for each", "action": "`.forea` 450 Enter 450 Down Enter 450 Enter" },
+                { "grammar": "statement for", "action": "`for (int i = 0; i < ; i++) {` Enter 200 Up{2} Right{15} ` `" },
+                { "grammar": "statement while", "action": "`while () {` 100 Enter 100 Up{5}" },
+                { "grammar": "statement switch", "action": "`switch () {` 100 Enter 100 Up{2} Right{8}" },
+                { "grammar": "statement case", "action": "`case :` Left" },
+                { "grammar": "statement try", "action": "`try {` 100 Enter 100 Down `catch {` 100 Enter 200 `// TODO` Up{4} 100 Ctrl `x` 100 Up End 100 Enter" },
+                { "grammar": "statement try catch", "action": "`try {` 100 Enter 100 Down `catch (Exception e) {` 100 Enter 200 `// TODO` Up{4} 100 Ctrl `x` 100 Up End 100 Enter" },
+                { "grammar": "call function", "action": "`();` Enter" },
+                { "grammar": "auto", "action": "Alt Enter" },
+                { "grammar": "field (public | protected | internal | private) [static] [readonly | const]  [$primitives]", "function": "CreateNewFieldOrMethod" },
+                { "grammar": "editor run", "action": "Ctrl `e`" },
+                { "grammar": "editor debug", "action": "Shift F9" },
+                { "grammar": "editor build", "action": "Ctrl F9" },
+                { "grammar": "lambda", "action": "` => `" },
+                { "grammar": "assign", "action": "` = `" },
+                { "grammar": "symbol (array | index | generic | paren | braces | [bitwise] and | [bitwise] or | not | complement | plus | minus | star | divide | comma | percent | backslash | colon | caret | pipe)", "function": "SymbolEmit" },
+                { "grammar": "equals", "action": "` == `" },
+                { "grammar": "not equals", "action": "` != `" },
+                { "grammar": "greater equals", "action": "` >= `" },
+                { "grammar": "less equals", "action": "` <= `" },
+                { "grammar": "literal quote", "action": "`''` Left" },
+                { "grammar": "literal string", "function": "EmitStringLiteral" },
+                { "grammar": "literal string interpolation", "function": "EmitStringInterpolation" },
+                { "grammar": "literal true", "action": "`true`" },
+                { "grammar": "literal false", "action": "`false`" },
+                { "grammar": "literal null", "action": "`null`" },
+                { "grammar": "generator", "action": "Alt Insert" },
+                { "grammar": "choose $number", "function": "ChooseOffset" },
+                { "grammar": "space [$number]", "action": "` `", "function": "RepeatAction" },
+                { "grammar": "enter [$number]", "action": "Enter", "function": "RepeatAction" },
+                { "grammar": "semi", "action": "`;`" },
+                { "grammar": "member", "action": "`m_`" },
+                { "grammar": "finish", "action": "End `;` Enter" },
+                { "grammar": "do", "action": "`.`" },
+                { "grammar": "dot", "action": "`.`" },
+                { "grammar": "create new class", "action": "<200,400,L> 100 Alt Insert" },
+                { "grammar": "primitive [you] $primitives", "function": "EmitPrimitive" },
+                { "grammar": "keyword (abstract | as | base | break | case | catch | checked | class | const | continue | decimal | default | delegate | do | else | enum | event | explicit | extern | finally | fixed | for | foreach | goto | if | implicit | in | interface | internal | is | lock | namespace | new | operator | out | override | params | private | protected | public | readonly | ref | return | sealed | sizeof | stackalloc | static | struct | switch | this | throw | try | typeof | unchecked | unsafe | using | var | virtual | void | volatile | while)", "function": "EmitKeyword" }
+            ]
+       },
+        "shell": {
+            "commands": [
+                { "grammar": "enter", "action": "Enter" },
+                { "grammar": "space", "action": "` `" },
+                { "grammar": "up [$numbers]", "action": "Up", "function": "RepeatAction" },
+                { "grammar": "down [$numbers]", "action": "Down", "function": "RepeatAction" },
+                { "grammar": "right [$numbers]", "action": "Right", "function": "RepeatAction" },
+                { "grammar": "left [$numbers]", "action": "Left", "function": "RepeatAction" },
+                { "grammar": "c d", "action": "`cd` Enter" },
+                { "grammar": "l s", "action": "`ls` Enter" },
+                { "grammar": "master", "action": "`master`" },
+                { "grammar": "git status", "action": "`git status` Enter" },
+                { "grammar": "git add dot", "action": "`git add .` Enter" },
+                { "grammar": "git commit", "action": "`git commit -m `", "function": "EmitStringLiteral" },
+                { "grammar": "git push", "action": "`git push `" },
+                { "grammar": "git new branch", "action": "`git checkout -b `", "function": "EmitStringLiteral" },
+                { "grammar": "git checkout", "action": "`git checkout `" }
+            ]
+       },
+        "system": {
+            "commands": [
+                { "grammar": "change window [$number]", "function": "ChangeWindow" },
+                { "grammar": "close window", "action": "+Alt F4" },
+                { "grammar": "minimize window", "action": "+Windows Down 50 Down" },
+                { "grammar": "maximize window", "action": "+Windows Up 50 Up" },
+                { "grammar": "click icon $number+", "function": "ClickSystemIcon" },
+                { "grammar": "volume (up | down | mute) [$number]", "function": "ChangeSoundVolume" }
+            ]
+        }
+   },
+    "commands": [
+        { "grammar": "voice code (start | stop)", "function": "VoiceCodeMute" },
+        { "grammar": "voice code reload", "function": "ReloadDefinitions" },
+        { "grammar": "mode change $modeNames", "function": "ChangeMode" },
+        { "grammar": "mode switch $modeNames", "function": "SwitchSiblingMode" },
+        { "grammar": "mode exit", "function": "ExitMode" },
+        { "grammar": "dictate $dictate", "function": "EmitDictation" },
+        { "grammar": "letter $letters", "function": "EmitSpelledWord" },
+        { "grammar": "emit keys $specialKeys+", "function": "EmitKeys" }
+    ],
+    "defines": {
+        "modeNames": "(browser | debug | edit | mouse | navigate | program | shell | system)",
+        "primitives": "(bool | byte | char | short | ushort | int | uint | long | ulong | float | double | string | object | void)",
+        "number": "(zero | oh | one | two | three | four | five | six | seven | eight | nine)",
+        "numbers": "$number+",
+        "integer": "[negative | minus] $numbers",
+        "letter": "[capital] (alpha | bravo | charlie | delta | echo | fox | golf | hotel | india | jewel | kilo | lima | mike | no | oscar | poll | queen | romeo | sierra | tango | uniform | victor | why | x-ray | yes | zebra)",
+        "letters": "($letter)+",
+        "specialKeys": "(Alt | Backspace | CapsLock | Control | Delete | Down | End | Enter | Escape | F1 | F2 | F3 | F4 | F5 | F6 | F7 | F8 | F9 | F10 | F11 | F12 | Home | Insert | Left | PageDown | PageUp | Right | Shift | Tab | Up | Windows)"
+    }
+}

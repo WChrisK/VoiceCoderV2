@@ -321,6 +321,16 @@ namespace VoiceCoderTwo
             s.Keyboard.KeyUp(VirtualKeyCode.MENU);
         }
 
+        public static void ClickSystemIcon(string[] words)
+        {
+            // TODO
+        }
+
+        public static void ChangeSoundVolume(string[] words)
+        {
+            // TODO
+        }
+
         #endregion
 
         public static Action<string[]>? GetCallable(string funcName)
