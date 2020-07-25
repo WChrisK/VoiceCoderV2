@@ -39,6 +39,10 @@
           <HintPath>packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
           <Private>True</Private>
         </Reference>
+        <Reference Include="OpenTK, Version=3.2.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4">
+          <HintPath>packages\OpenTK.3.2\lib\net20\OpenTK.dll</HintPath>
+          <Private>True</Private>
+        </Reference>
         <Reference Include="System" />
         <Reference Include="System.Core" />
         <Reference Include="System.Data" />
@@ -61,6 +65,7 @@
         <Compile Include="Definitions\ParserException.cs" />
         <Compile Include="Definitions\VCGrammar.cs" />
         <Compile Include="FunctionsHelper.cs" />
+        <Compile Include="JoystickToMouse.cs" />
         <Compile Include="VoiceCoderV2.cs" />
         <Compile Include="Functions.cs" />
         <Compile Include="InputKey.cs" />
@@ -68,6 +73,7 @@
         <Compile Include="Properties\AssemblyInfo.cs" />
     </ItemGroup>
     <ItemGroup>
+      <None Include="OpenTK.dll.config" />
       <None Include="packages.config" />
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

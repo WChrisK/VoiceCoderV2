@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using WindowsInput;
 using WindowsInput.Native;
+using VoiceCoderTwo.Definitions;
 using static VoiceCoderTwo.FunctionsHelper;
 
 namespace VoiceCoderTwo
@@ -104,6 +105,41 @@ namespace VoiceCoderTwo
 
             if (keys.Count > 0)
                 VoiceCoderV2.SendActionKeys(keys);
+        }
+
+        public static void ExtendedSpellingMode(string[] words)
+        {
+            VoiceCoderV2.EnterExclusiveMode(VoiceCoderV2.RootMode.Modes["spelling"]);
+        }
+
+        public static void HandleSpelling(string[] words)
+        {
+            StringBuilder builder = new StringBuilder();
+            bool useUpper = false;
+
+            foreach (var word in words)
+            {
+                if (word == "capital")
+                {
+                    useUpper = true;
+                    continue;
+                }
+
+                builder.Append(useUpper ? char.ToUpper(word[0]) : word[0]);
+                useUpper = false;
+            }
+
+            Native.EmitKeys(builder.ToString());
+        }
+
+        public static void ExitSpelling(string[] words)
+        {
+            VoiceCoderV2.ExitExclusiveMode(VoiceCoderV2.RootMode.Modes["spelling"]);
+        }
+
+        public static void ChangeMouseSpeed(string[] words)
+        {
+            VoiceCoderV2.JoystickMouse.IsFastMove = !VoiceCoderV2.JoystickMouse.IsFastMove;
         }
 
         #endregion

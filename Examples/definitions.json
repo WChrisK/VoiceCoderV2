@@ -2,6 +2,7 @@
 	"modes": {
         "browser": {
             "commands": [
+                { "grammar": "enter", "action": "Enter" },
                 { "grammar": "up [$numbers]", "action": "Up", "function": "RepeatAction" },
                 { "grammar": "down [$numbers]", "action": "Down", "function": "RepeatAction" },
                 { "grammar": "right [$numbers]", "action": "Right", "function": "RepeatAction" },
@@ -9,7 +10,7 @@
                 { "grammar": "page up [$numbers]", "action": "PgUp", "function": "RepeatAction" },
                 { "grammar": "page down [$numbers]", "action": "PgDn", "function": "RepeatAction" },
                 { "grammar": "links", "action": "`f` 50 `f`" },
-                { "grammar": "new tab", "action": "Ctrl `n`" },
+                { "grammar": "new tab", "action": "Ctrl `t`" },
                 { "grammar": "close tab", "action": "Ctrl `w`" },
                 { "grammar": "restore tab", "action": "Ctrl Shift `t`" },
                 { "grammar": "next tab [$numbers]", "action": "Ctrl PgDn", "function": "RepeatAction" },
@@ -21,7 +22,7 @@
                 { "grammar": "back", "action": "Alt Left" },
                 { "grammar": "forward", "action": "Alt Right" }
             ]
-       },
+        },
         "file": {
             "commands": [
                 { "grammar": "up [$numbers]", "action": "Up", "function": "RepeatAction" },
@@ -32,9 +33,10 @@
                 { "grammar": "page down [$numbers]", "action": "PgDn", "function": "RepeatAction" },
                 { "grammar": "back", "action": "Backspace" },
                 { "grammar": "close", "action": "Ctrl `w`" },
+                { "grammar": "enter", "action": "Enter" },
                 { "grammar": "open (c | d)", "function": "OpenSystemDrive" }
             ]
-       },
+        },
         "mouse": {
             "commands": [
                 {"grammar": "move ((up | down) [left | right] | left | right) $numbers", "function": "MouseMove" },
@@ -44,7 +46,7 @@
                 { "grammar": "grid (one | two | three | four)+", "function": "MouseGrid" },
                 { "grammar": "print position", "function": "PrintMouseCoordinates" }
             ]
-       },
+        },
         "program": {
             "modes": {
                 "navigate": {
@@ -94,7 +96,7 @@
                         { "grammar": "over", "action": "F8" }
                     ]
                 }
-           },
+            },
             "commands": [
                 { "grammar": "camel $dictate", "function": "EmitCamelCaseWord" },
                 { "grammar": "pascal $dictate", "function": "EmitPascalCaseWord" },
@@ -153,7 +155,7 @@
                 { "grammar": "generator", "action": "Alt Insert" },
                 { "grammar": "choose $number", "function": "ChooseOffset" },
                 { "grammar": "space [$number]", "action": "` `", "function": "RepeatAction" },
-                { "grammar": "enter [$number]", "action": "Enter", "function": "RepeatAction" },
+                { "grammar": "new line [$number]", "action": "Enter", "function": "RepeatAction" },
                 { "grammar": "semi", "action": "`;`" },
                 { "grammar": "member", "action": "`m_`" },
                 { "grammar": "finish", "action": "End `;` Enter" },
@@ -164,7 +166,7 @@
                 { "grammar": "primitive [you] $primitives", "function": "EmitPrimitive" },
                 { "grammar": "keyword (abstract | as | base | break | case | catch | checked | class | const | continue | decimal | default | delegate | do | else | enum | event | explicit | extern | finally | fixed | for | foreach | goto | if | implicit | in | interface | internal | is | lock | namespace | new | operator | out | override | params | private | protected | public | readonly | ref | return | sealed | sizeof | stackalloc | static | struct | switch | this | throw | try | typeof | unchecked | unsafe | using | var | virtual | void | volatile | while)", "function": "EmitKeyword" }
             ]
-       },
+        },
         "shell": {
             "commands": [
                 { "grammar": "enter", "action": "Enter" },
@@ -174,6 +176,7 @@
                 { "grammar": "right [$numbers]", "action": "Right", "function": "RepeatAction" },
                 { "grammar": "left [$numbers]", "action": "Left", "function": "RepeatAction" },
                 { "grammar": "complete [$numbers]", "action": "Tab", "function": "RepeatAction" },
+                { "grammar": "new folder", "action": "Ctrl Shift `n`" },
                 { "grammar": "c d", "action": "`cd` Enter" },
                 { "grammar": "l s", "action": "`ls` Enter" },
                 { "grammar": "master", "action": "`master`" },
@@ -184,7 +187,15 @@
                 { "grammar": "git new branch", "action": "`git checkout -b `", "function": "EmitStringLiteral" },
                 { "grammar": "git checkout", "action": "`git checkout `" }
             ]
-       },
+        },
+        "spelling": {
+            "commands": [
+                { "grammar": "$letters", "function": "HandleSpelling" },
+                { "grammar": "enter", "action": "Enter" },
+                { "grammar": "backspace", "action": "Backspace" },
+                { "grammar": "finish", "function": "ExitSpelling" }
+            ]
+        },
         "system": {
             "commands": [
                 { "grammar": "change window [$number]", "function": "ChangeWindow" },
@@ -196,7 +207,7 @@
                 { "grammar": "volume (up | down | mute) [$number]", "function": "ChangeSoundVolume" }
             ]
         }
-   },
+    },
     "commands": [
         { "grammar": "voice code (start | stop)", "function": "VoiceCodeMute" },
         { "grammar": "voice code reload", "function": "ReloadDefinitions" },
@@ -204,8 +215,13 @@
         { "grammar": "mode change $modeNames", "function": "ChangeMode" },
         { "grammar": "mode switch $modeNames", "function": "SwitchSiblingMode" },
         { "grammar": "mode exit", "function": "ExitMode" },
+        { "grammar": "mouse speed", "function": "ChangeMouseSpeed" },
+        { "grammar": "mouse click", "action": "<,,L>" },
+        { "grammar": "mouse click double", "action": "<,,L> 100 <,,L>" },
+        { "grammar": "mouse click right", "action": "<,,R>" },
         { "grammar": "dictate $dictate", "function": "EmitDictation" },
         { "grammar": "letter $letters", "function": "EmitSpelledWord" },
+        { "grammar": "spelling", "function": "ExtendedSpellingMode" },
         { "grammar": "emit keys $specialKeys+", "function": "EmitKeys" }
     ],
     "defines": {
@@ -214,7 +230,7 @@
         "number": "(zero | oh | one | two | three | four | five | six | seven | eight | nine)",
         "numbers": "$number+",
         "integer": "[negative | minus] $numbers",
-        "letter": "[capital] (alpha | bravo | charlie | delta | echo | fox | golf | hotel | india | jewel | kilo | lima | mike | no | oscar | poll | queen | romeo | sierra | tango | uniform | victor | why | x-ray | yes | zebra)",
+        "letter": "[capital] (alpha | bravo | charlie | delta | echo | fox | golf | hotel | india | jewel | kilo | lima | mike | no | oscar | poll | queen | romeo | sierra | tango | uniform | victor | whale | x-ray | yes | zebra)",
         "letters": "($letter)+",
         "specialKeys": "(Alt | Backspace | CapsLock | Control | Delete | Down | End | Enter | Escape | F1 | F2 | F3 | F4 | F5 | F6 | F7 | F8 | F9 | F10 | F11 | F12 | Home | Insert | Left | PageDown | PageUp | Right | Shift | Tab | Up | Windows)"
     }

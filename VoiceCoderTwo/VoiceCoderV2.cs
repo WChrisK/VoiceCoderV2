@@ -19,14 +19,43 @@ namespace VoiceCoderTwo
         public static bool HaltVoiceCoder;
         public static string DefinitionPath = "definitions.json";
         public static readonly SpeechSynthesizer SpeechSynthesizer = new SpeechSynthesizer();
+        public static readonly JoystickToMouse JoystickMouse = new JoystickToMouse(false);
         private static readonly InputSimulator inputSimulator = new InputSimulator();
         private static readonly SpeechRecognitionEngine sre = new SpeechRecognitionEngine();
         private static readonly Stack<Mode> loadedModes = new Stack<Mode>();
         private static Mode rootMode = null!;
         private static List<object> lastActionCommand = new List<object>();
         private static bool initialLoad = true;
+        private static HashSet<Mode> pushedModes = new HashSet<Mode>();
 
+        public static Mode RootMode => rootMode;
         public static Mode CurrentMode => loadedModes.Count > 0 ? loadedModes.Peek() : rootMode;
+
+        public static void EnterExclusiveMode(Mode mode)
+        {
+            if (pushedModes.Count > 0)
+                throw new Exception("Trying to enter exclusive mode twice");
+
+            pushedModes.Add(CurrentMode);
+            if (!ReferenceEquals(CurrentMode, RootMode))
+                pushedModes.Add(rootMode);
+
+            foreach (Mode pushedMode in pushedModes)
+                DisableSreGrammarFor(pushedMode);
+            EnableSreGrammarFor(mode);
+        }
+
+        public static void ExitExclusiveMode(Mode mode)
+        {
+            if (pushedModes.Count == 0)
+                throw new Exception("Not in exclusive mode");
+
+            foreach (Mode pushedMode in pushedModes)
+                EnableSreGrammarFor(pushedMode);
+            DisableSreGrammarFor(mode);
+
+            pushedModes.Clear();
+        }
 
         private static void RecursivelyAddModes(Mode mode, string path)
         {
