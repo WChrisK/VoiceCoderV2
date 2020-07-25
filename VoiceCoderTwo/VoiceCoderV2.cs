@@ -23,13 +23,12 @@ namespace VoiceCoderTwo
         private static readonly InputSimulator inputSimulator = new InputSimulator();
         private static readonly SpeechRecognitionEngine sre = new SpeechRecognitionEngine();
         private static readonly Stack<Mode> loadedModes = new Stack<Mode>();
-        private static Mode rootMode = null!;
+        private static readonly HashSet<Mode> pushedModes = new HashSet<Mode>();
         private static List<object> lastActionCommand = new List<object>();
         private static bool initialLoad = true;
-        private static HashSet<Mode> pushedModes = new HashSet<Mode>();
 
-        public static Mode RootMode => rootMode;
-        public static Mode CurrentMode => loadedModes.Count > 0 ? loadedModes.Peek() : rootMode;
+        public static Mode RootMode { get; private set; } = null!;
+        public static Mode CurrentMode => loadedModes.Count > 0 ? loadedModes.Peek() : RootMode;
 
         public static void EnterExclusiveMode(Mode mode)
         {
@@ -38,7 +37,7 @@ namespace VoiceCoderTwo
 
             pushedModes.Add(CurrentMode);
             if (!ReferenceEquals(CurrentMode, RootMode))
-                pushedModes.Add(rootMode);
+                pushedModes.Add(RootMode);
 
             foreach (Mode pushedMode in pushedModes)
                 DisableSreGrammarFor(pushedMode);
@@ -79,7 +78,7 @@ namespace VoiceCoderTwo
 
         public static void ExitMode()
         {
-            if (ReferenceEquals(CurrentMode, rootMode))
+            if (ReferenceEquals(CurrentMode, RootMode))
             {
                 Console.WriteLine("Cannot exit from global mode");
                 return;
@@ -101,7 +100,7 @@ namespace VoiceCoderTwo
             }
 
             Console.WriteLine($"Changed to mode: {name}");
-            if (!ReferenceEquals(CurrentMode, rootMode))
+            if (!ReferenceEquals(CurrentMode, RootMode))
                 DisableSreGrammarFor(CurrentMode);
             loadedModes.Push(mode);
             EnableSreGrammarFor(mode);
@@ -266,7 +265,7 @@ namespace VoiceCoderTwo
                 object data = JsonConvert.DeserializeObject(text) ?? throw new NullReferenceException($"Unable to read definitions at: {path}");
 
                 Mode.Defines = Mode.CreateDefaultDefines();
-                rootMode = new Mode("", null, (JObject)data);
+                RootMode = new Mode("", null, (JObject)data);
                 loadedModes.Clear();
                 lastActionCommand.Clear();
                 sre.UnloadAllGrammars();
@@ -288,12 +287,12 @@ namespace VoiceCoderTwo
                 return;
             }
 
-            RecursivelyAddModes(rootMode, "");
+            RecursivelyAddModes(RootMode, "");
 
             // Load all the stuff so they're ready to be toggled, but only make
             // sure the root is ready to go from the start.
-            RecursivelyLoadModeGrammars(rootMode);
-            EnableSreGrammarFor(rootMode);
+            RecursivelyLoadModeGrammars(RootMode);
+            EnableSreGrammarFor(RootMode);
         }
 
         public static void Main(string[] args)
