@@ -184,6 +184,7 @@
                 { "grammar": "git add dot", "action": "`git add .` Enter" },
                 { "grammar": "git commit", "action": "`git commit -m `", "function": "EmitStringLiteral" },
                 { "grammar": "git push", "action": "`git push `" },
+                { "grammar": "git pull", "action": "`git pull `" },
                 { "grammar": "git new branch", "action": "`git checkout -b `", "function": "EmitStringLiteral" },
                 { "grammar": "git checkout", "action": "`git checkout `" }
             ]
